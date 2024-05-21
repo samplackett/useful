@@ -1,6 +1,6 @@
 DO $$
 DECLARE
-    v_Row temp_values%ROWTYPE;
+    v_Row temp_pr_values%ROWTYPE;
     v_CorrelationId VARCHAR(36);
     v_FRN BIGINT;
     v_InvoiceNumber VARCHAR(30);
