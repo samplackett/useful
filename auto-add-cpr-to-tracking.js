@@ -1,10 +1,11 @@
 const fs = require('fs')
 const path = require('path')
+const { Client } = require('pg')
 
 const inputFolder = './input'
-const outputFolder = './output'
+// const outputFolder = './output'
 
-const processFile = (inputFilePath, outputFilePath) => {
+const processFile = (inputFilePath) => {
   const data = fs.readFileSync(inputFilePath, 'utf8').trim().split('\n')
   const processedEntries = new Set()
   const formattedData = data.map(line => {
@@ -144,21 +145,35 @@ ${formattedData};`
   console.log(`File saved: ${outputFilePath}`)
 }
 
-const processFiles = () => {
-  fs.readdir(inputFolder, (err, files) => {
-    if (err) {
-      console.error('Error reading input folder:', err)
-      return
-    }
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+})
 
-    files.forEach(file => {
-      if (file.startsWith('cpr-') && file.endsWith('.csv')) {
-        const inputFilePath = path.join(inputFolder, file)
-        const outputFilePath = path.join(outputFolder, file.replace('.csv', '.sql'))
-        processFile(inputFilePath, outputFilePath)
-      }
-    })
+try {
+  await client.connect()
+  await client.query(sqlScript)
+  console.log(`Data inserted into database from file: ${inputFilePath}`)
+} catch (err) {
+  console.error('Error executing query:', err)
+} finally {
+  await client.end()
+}
+}
+
+const processFiles = () => {
+fs.readdir(inputFolder, (err, files) => {
+  if (err) {
+    console.error('Error reading input folder:', err)
+    return
+  }
+
+  files.forEach(file => {
+    if (file.startsWith('cpr-') && file.endsWith('.csv')) {
+      const inputFilePath = path.join(inputFolder, file)
+      processFile(inputFilePath)
+    }
   })
+})
 }
 
 processFiles()
