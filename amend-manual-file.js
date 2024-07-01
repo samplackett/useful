@@ -36,10 +36,10 @@ fs.readdir(inputDir, (err, files) => {
         return
     }
 
-    const csvFiles = files.filter(file => path.extname(file) === '.csv')
+    const filesToProcess = files.filter(file => path.extname(file) === '.csv' || path.extname(file) === '.txt')
     let timestamp = moment().format('YYYYMMDDHHmmss')
 
-    csvFiles.forEach((fileName, index) => {
+    filesToProcess.forEach((fileName, index) => {
         fs.readFile(`${inputDir}/${fileName}`, 'utf8', (err, data) => {
             if (err) {
                 console.error('Error reading file:', fileName, err)
