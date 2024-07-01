@@ -8,6 +8,7 @@ const processFile = (inputFilePath, outputFilePath) => {
     const data = fs.readFileSync(inputFilePath, 'utf8').trim().split('\n')
     const processedEntries = new Set()
     const formattedData = data.map(line => {
+        console.log(line)
         const [completedPaymentRequestId, paymentRequestId, schemeId, ledger, sourceSystem, deliveryBody, invoiceNumber, frn, sbi, agreementNumber, contractNumber, currency, schedule, dueDate, value, acknowledged, marketingYear, debtType, recoveryDate, originalSettlementDate, originalInvoiceNumber, invoiceCorrectionReference, submitted, paymentRequestNumber, invalid, settledValue, lastSettlement, referenceId, correlationId, batch, paymentType, pillar, exchangeRate, eventDate, vendor, trader, claimDate, migrated, migrationId] = line.split(',')
         
         if (processedEntries.has(`${correlationId}-${frn}-${invoiceNumber}`) || invalid === 'TRUE') {

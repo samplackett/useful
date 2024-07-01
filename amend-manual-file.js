@@ -23,7 +23,11 @@ const swapDateFormat = (date) => {
 }
 
 const removeUnnecessaryText = (text) => {
-    return text.replace(/"/g, '').replace(/,AP,/g, '').trim().replace(/,AP/g, '').trim()
+    return text.replace(/"/g, '').trim()
+}
+
+const removeTrailingCommas = (text) => {
+    return text.split('\n').map(line => line.replace(/(,+)$/g, '')).join('\n')
 }
 
 fs.readdir(inputDir, (err, files) => {
@@ -33,6 +37,7 @@ fs.readdir(inputDir, (err, files) => {
     }
 
     const csvFiles = files.filter(file => path.extname(file) === '.csv')
+    let timestamp = moment().format('YYYYMMDDHHmmss')
 
     csvFiles.forEach((fileName, index) => {
         fs.readFile(`${inputDir}/${fileName}`, 'utf8', (err, data) => {
@@ -42,26 +47,22 @@ fs.readdir(inputDir, (err, files) => {
             }
 
             data = removeUnnecessaryText(data)
-
-            const parsedData = parse(data)
+            data = removeTrailingCommas(data)
+            const parsedData = parse(data, { header: false })
 
             parsedData.data.forEach(row => {
                 row[7] = swapDateFormat(row[7])
             })
 
-            const outputText = unparse(parsedData)
+            let outputText = unparse(parsedData)
+            outputText = removeTrailingCommas(outputText)
 
-            let timestamp = moment().format('YYYYMMDDHHmmss')
-            let outputFileName = `FFC_Manual_Batch_SFI_${timestamp}.csv`
-            let outputPath = path.join(outputDir, outputFileName)
-
-            let count = 1
-            while (fs.existsSync(outputPath)) {
-                timestamp = moment().add(count, 'seconds').format('YYYYMMDDHHmmss')
-                outputFileName = `FFC_Manual_Batch_SFI_${timestamp}.csv`
-                outputPath = path.join(outputDir, outputFileName)
-                count++
+            if (index.toString().length === 1) {
+                index = '0' + index
             }
+            timestamp = timestamp.slice(0, -index.toString().length) + index
+            let outputFileName = `FFC_Manual_Batch_SFI23_${timestamp}.csv`
+            let outputPath = path.join(outputDir, outputFileName)
 
             fs.writeFile(outputPath, outputText, 'utf8', (err) => {
                 if (err) {

@@ -11,7 +11,7 @@ const processFile = (inputFilePath, outputFilePath) => {
         return `      ('${referenceType}', '${reference}', '${frn.trim()}')`
     }).join(',\n')
 
-    const sqlScript = `TRUNCATE customers RESTART IDENTITY
+    const sqlScript = `TRUNCATE customers RESTART IDENTITY;
     INSERT INTO public."customers"
       ("referenceType", "reference", "frn")
     VALUES
