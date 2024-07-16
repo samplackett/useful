@@ -16,9 +16,9 @@ if (!fs.existsSync(outputDir)) {
 const swapDateFormat = (date) => {
     if (!date) return ''
     if (/\d{4}-\d{2}-\d{2}/.test(date)) return date
-    var parts = date.split('/')
-    var month = parts[1].length === 1 ? '0' + parts[1] : parts[1]
-    var day = parts[0].length === 1 ? '0' + parts[0] : parts[0]
+    const parts = date.split('/')
+    const month = parts[1].length === 1 ? '0' + parts[1] : parts[1]
+    const day = parts[0].length === 1 ? '0' + parts[0] : parts[0]
     return parts[2] + '-' + month + '-' + day
 }
 
@@ -27,7 +27,7 @@ const removeUnnecessaryText = (text) => {
 }
 
 const removeTrailingCommas = (text) => {
-    return text.split('\n').map(line => line.replace(/(,+)$/g, '')).join('\n')
+    return text.split('\n').map(line => line.replace(/,+$/, '').replace('AP,','AP')).join('\n')
 }
 
 fs.readdir(inputDir, (err, files) => {
@@ -60,8 +60,14 @@ fs.readdir(inputDir, (err, files) => {
             if (index.toString().length === 1) {
                 index = '0' + index
             }
+
+            let fileIdentifier = parsedData.data[0][0]
+            if (fileIdentifier.startsWith('Manual_')) {
+                fileIdentifier = fileIdentifier.split('_')[1]
+            }
+
             timestamp = timestamp.slice(0, -index.toString().length) + index
-            let outputFileName = `FFC_Manual_Batch_SFI23_${timestamp}.csv`
+            let outputFileName = `FFC_Manual_Batch_${fileIdentifier}_${timestamp}.csv`
             let outputPath = path.join(outputDir, outputFileName)
 
             fs.writeFile(outputPath, outputText, 'utf8', (err) => {
